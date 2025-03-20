@@ -1,15 +1,7 @@
 import TodoCard from '@/components/TodoCard';
 import { useTodos } from '@/hooks/useTodos';
+import Button from '@/shared/ui/Button';
 import { useState } from 'react';
-
-// interface Todo {
-//     id: string;
-//     title: string;
-//     description?: string;
-//     completed: boolean;
-//     ownerId: string;
-//     collaborators?: string[];
-// }
 
 const TodoField = () => {
     const [newTodo, setNewTodo] = useState('');
@@ -38,11 +30,12 @@ const TodoField = () => {
                         onChange={(e) => setNewTodo(e.target.value)}
                         className="border p-2 rounded-md bg-white w-full"
                     />
-                    <button
+
+                    <Button
                         onClick={() => addTodo({ name: newTodo })}
-                        className=" bg-black text-white w-[200px] py-2 px-4 cursor-pointer">
+                        className="bg-black text-white w-[200px] py-2 px-4 hover:bg-black">
                         Add new Todo
-                    </button>
+                    </Button>
                 </div>
             </section>
 

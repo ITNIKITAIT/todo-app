@@ -6,6 +6,7 @@ import { LoginFormData, loginSchema } from '../../schemas';
 import { api } from '../../api';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import Button from '@/shared/ui/Button';
 
 export default function LoginForm() {
     const {
@@ -67,11 +68,7 @@ export default function LoginForm() {
                 )}
             </div>
 
-            <button
-                type="submit"
-                className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 cursor-pointer">
-                Login
-            </button>
+            <Button>Login</Button>
 
             <p className="text-center mt-4">
                 <span>Don't have an account?</span>

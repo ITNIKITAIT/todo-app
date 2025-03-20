@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTodos } from '@/hooks/useTodos';
+import Button from '@/shared/ui/Button';
 
 interface Task {
     id: string;
@@ -89,11 +90,8 @@ const TodoCard = ({ id, name, tasks }: TodoCardProps) => {
                     onChange={(e) => setNewTaskDescription(e.target.value)}
                     className="border p-2 w-full rounded-md mb-2"
                 />
-                <button
-                    onClick={handleAddTask}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-lg w-full">
-                    Add task
-                </button>
+
+                <Button onClick={handleAddTask}>Add task</Button>
             </div>
         </div>
     );

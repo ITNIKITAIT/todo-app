@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { RegisterFormData, registerSchema } from '../../schemas';
 import { api } from '../../api';
+import Button from '@/shared/ui/Button';
 
 export default function RegisterPage() {
     const {
@@ -95,11 +96,7 @@ export default function RegisterPage() {
                 )}
             </div>
 
-            <button
-                type="submit"
-                className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 cursor-pointer">
-                Register
-            </button>
+            <Button>Register</Button>
             <p className="text-center mt-4">
                 <span>Do you already have an account?</span>
                 <button
