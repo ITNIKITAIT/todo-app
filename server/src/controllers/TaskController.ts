@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../prisma';
 
-export const TaskController = {
+class TaskController {
     async create(req: Request, res: Response): Promise<any> {
         try {
             const { title, description, listId, user } = req.body;
@@ -22,7 +22,7 @@ export const TaskController = {
         } catch (error) {
             res.status(500).json({ message: 'Something went wrong' });
         }
-    },
+    }
 
     async getAll(req: Request, res: Response): Promise<any> {
         try {
@@ -41,7 +41,7 @@ export const TaskController = {
         } catch (error) {
             res.status(500).json({ message: 'Something went wrong' });
         }
-    },
+    }
 
     async update(req: Request, res: Response): Promise<any> {
         try {
@@ -69,7 +69,7 @@ export const TaskController = {
         } catch (error) {
             res.status(500).json({ message: 'Something went wrong' });
         }
-    },
+    }
 
     async delete(req: Request, res: Response): Promise<any> {
         try {
@@ -92,5 +92,7 @@ export const TaskController = {
         } catch (error) {
             res.status(500).json({ message: 'Something went wrong' });
         }
-    },
-};
+    }
+}
+
+export default new TaskController();
