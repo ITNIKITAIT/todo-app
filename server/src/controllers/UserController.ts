@@ -2,9 +2,10 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import prisma from '../prisma';
+import { generateToken } from '../utils/generateToken';
 
 class UserController {
-    async register(req: Request, res: Response) {
+    async register(req: Request, res: Response): Promise<any> {
         try {
             const { name, email, password } = req.body;
 
@@ -12,7 +13,7 @@ class UserController {
                 where: { email },
             });
             if (existingUser) {
-                res.status(400).json({
+                return res.status(400).json({
                     message: 'User with this email already exists',
                 });
             }
@@ -23,6 +24,12 @@ class UserController {
                 data: { name, email, password: hashedPassword },
             });
 
+            const token = generateToken(user.id);
+            res.cookie('jwt', token, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'strict',
+            });
             res.status(201).json({ message: 'User was created', user });
         } catch (error) {
             res.status(500).json({ message: 'Server error', error });
@@ -45,20 +52,53 @@ class UserController {
                 user.password
             );
             if (!isPasswordValid) {
-                res.status(400).json({
+                return res.status(400).json({
                     message: 'Incorrect email or password',
                 });
             }
 
-            const token = jwt.sign(
-                { userId: user.id },
-                process.env.JWT_SECRET as string,
-                {
-                    expiresIn: '7d',
-                }
-            );
+            const token = generateToken(user.id);
 
-            res.json({ token, user });
+            res.cookie('jwt', token, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'strict',
+            });
+            res.json({ user });
+        } catch (error) {
+            res.status(500).json({ message: 'Server error', error });
+        }
+    }
+    async check(req: Request, res: Response): Promise<any> {
+        const token = req.cookies.jwt;
+        if (!token) {
+            return res.json(null);
+        }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
+            userId: string;
+        };
+
+        const user = await prisma.user.findFirst({
+            where: {
+                id: decoded.userId,
+            },
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: "User doesn't exist" });
+        }
+
+        res.json({ id: user.id, email: user.email, name: user.name });
+    }
+    async logout(req: Request, res: Response): Promise<any> {
+        try {
+            res.clearCookie('jwt', {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'strict',
+            });
+
+            return res.json({ message: 'Logged out successfully' });
         } catch (error) {
             res.status(500).json({ message: 'Server error', error });
         }

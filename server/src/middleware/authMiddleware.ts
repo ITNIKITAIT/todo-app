@@ -10,7 +10,8 @@ export const authMiddleware = (
     res: Response,
     next: NextFunction
 ) => {
-    const token = req.headers.authorization?.split(' ')[1];
+    // const token = req.headers.authorization?.split(' ')[1];
+    const token = req.cookies.jwt;
 
     if (!token) {
         res.status(401).json({ message: 'No access' });
