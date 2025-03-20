@@ -30,6 +30,13 @@ class TodoListController {
 
             const todoLists = await prisma.todoList.findMany({
                 where: { ownerId: userId },
+                include: {
+                    tasks: {
+                        orderBy: {
+                            createdAt: 'desc',
+                        },
+                    },
+                },
             });
 
             res.json(todoLists);

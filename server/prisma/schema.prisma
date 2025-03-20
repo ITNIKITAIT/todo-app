@@ -19,6 +19,8 @@ model User {
   password      String
   lists         TodoList[]
   collaborators Collaborator[]
+
+  createdAt DateTime @default(now())
 }
 
 model TodoList {
@@ -28,6 +30,9 @@ model TodoList {
   owner         User           @relation(fields: [ownerId], references: [id])
   tasks         Task[]
   collaborators Collaborator[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Task {
@@ -37,6 +42,9 @@ model Task {
   status      Boolean  @default(false)
   listId      String
   list        TodoList @relation(fields: [listId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Collaborator {
@@ -46,4 +54,6 @@ model Collaborator {
   role   UserRole
   user   User     @relation(fields: [userId], references: [id])
   list   TodoList @relation(fields: [listId], references: [id])
+
+  createdAt DateTime @default(now())
 }
