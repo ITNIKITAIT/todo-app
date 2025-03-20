@@ -14,7 +14,7 @@ export const authMiddleware = (
     const token = req.cookies.jwt;
 
     if (!token) {
-        res.status(401).json({ message: 'No access' });
+        res.status(401).json({ message: 'Unauthorized' });
         return;
     }
 

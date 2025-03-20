@@ -2,6 +2,24 @@ import { Request, Response } from 'express';
 import prisma from '../prisma';
 
 class CollaboratorController {
+    async getCollaborators(req: Request, res: Response): Promise<any> {
+        const { listId } = req.params;
+
+        if (!listId) {
+            return res.status(400).json({ message: 'Missing listId' });
+        }
+
+        const collaborators = await prisma.collaborator.findMany({
+            where: { listId },
+            include: {
+                user: {
+                    select: { id: true, name: true, email: true },
+                },
+            },
+        });
+
+        res.json(collaborators);
+    }
     async addCollaborator(req: Request, res: Response): Promise<any> {
         const { email, listId, role } = req.body;
         const ownerId = req.body.user?.id;
@@ -26,11 +44,9 @@ class CollaboratorController {
         });
 
         if (existingCollaborator) {
-            return res
-                .status(400)
-                .json({
-                    message: 'User is already a collaborator in this list',
-                });
+            return res.status(400).json({
+                message: 'User is already a collaborator in this list',
+            });
         }
 
         const collaborator = await prisma.collaborator.create({

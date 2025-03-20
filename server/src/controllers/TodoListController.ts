@@ -28,7 +28,7 @@ class TodoListController {
                 return res.status(401).json({ message: 'Unauthorized' });
             }
 
-            const todoLists = await prisma.todoList.findMany({
+            const myTodos = await prisma.todoList.findMany({
                 where: { ownerId: userId },
                 include: {
                     tasks: {
@@ -39,7 +39,22 @@ class TodoListController {
                 },
             });
 
-            res.json(todoLists);
+            const collaboratorTodos = await prisma.todoList.findMany({
+                where: {
+                    collaborators: {
+                        some: { userId },
+                    },
+                },
+                include: {
+                    tasks: { orderBy: { createdAt: 'desc' } },
+                    collaborators: {
+                        where: { userId },
+                        select: { role: true },
+                    },
+                },
+            });
+
+            res.json({ myTodos, collaboratorTodos });
         } catch (error) {
             res.status(500).json({ message: 'Server error' });
         }
@@ -83,10 +98,14 @@ class TodoListController {
                 return res.status(403).json({ message: 'Forbidden' });
             }
 
-            await prisma.todoList.delete({ where: { id } });
+            await prisma.$transaction([
+                prisma.task.deleteMany({ where: { listId: id } }),
+                prisma.todoList.delete({ where: { id } }),
+            ]);
 
             res.status(204).send();
         } catch (error) {
+            console.error(error);
             res.status(500).json({ message: 'Server error' });
         }
     }

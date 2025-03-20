@@ -4,6 +4,7 @@ import { authMiddleware } from '../middleware/authMiddleware';
 
 const router = Router();
 
+router.get('/', authMiddleware, CollaboratorController.getCollaborators);
 router.post('/', authMiddleware, CollaboratorController.addCollaborator);
 router.delete('/', authMiddleware, CollaboratorController.removeCollaborator);
 

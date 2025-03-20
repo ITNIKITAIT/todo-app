@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { useTodos } from '@/hooks/useTodos';
+import { USER_ROLE, useTodos } from '@/hooks/useTodos';
+import { ImCross } from 'react-icons/im';
+import { IoMdPersonAdd } from 'react-icons/io';
 import Button from '@/shared/ui/Button';
+import CollaboratorModal from './CollaboratorModal';
 
 interface Task {
     id: string;
@@ -14,12 +17,15 @@ interface TodoCardProps {
     name: string;
     ownerId: string;
     tasks: Task[];
+    role?: USER_ROLE;
 }
 
-const TodoCard = ({ id, name, tasks }: TodoCardProps) => {
-    const { addTask, deleteTask, updateTaskStatus } = useTodos();
-    const [newTaskTitle, setNewTaskTitle] = useState('');
-    const [newTaskDescription, setNewTaskDescription] = useState('');
+const TodoCard = ({ id, name, tasks, role }: TodoCardProps) => {
+    const { addTask, deleteTask, updateTaskStatus, deleteTodo } = useTodos();
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+    const [newTaskTitle, setNewTaskTitle] = useState<string>('');
+    const [newTaskDescription, setNewTaskDescription] = useState<string>('');
 
     const handleAddTask = () => {
         if (!newTaskTitle.trim()) return;
@@ -33,10 +39,28 @@ const TodoCard = ({ id, name, tasks }: TodoCardProps) => {
         setNewTaskDescription('');
     };
 
-    return (
-        <div className="bg-white shadow-lg rounded-xl p-5 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-2">{name}</h2>
+    const isViewer = role === USER_ROLE.VIEWER;
 
+    return (
+        <div className="bg-white shadow-lg rounded-xl p-5 w-full max-w-md relative">
+            {!role && (
+                <div className="absolute top-4 right-4 h-5 hover:fill-red-600 cursor-pointer flex items-center gap-4 w-fit">
+                    <IoMdPersonAdd
+                        onClick={() => setIsModalOpen(true)}
+                        className="w-7 h-7 hover:fill-green-600 cursor-pointer"
+                    />
+                    <ImCross
+                        onClick={() => deleteTodo(id)}
+                        className="w-5 h-5 hover:fill-red-600 cursor-pointer"
+                    />
+                </div>
+            )}
+            <h2 className="text-xl font-bold mb-2">{name}</h2>
+            {role && (
+                <p className="bg-yellow-200 w-fit py-1 px-2 border-rounded mb-2">
+                    You are {role}
+                </p>
+            )}
             <ul className="space-y-2">
                 {tasks.map((task) => (
                     <li
@@ -64,35 +88,44 @@ const TodoCard = ({ id, name, tasks }: TodoCardProps) => {
                                 </p>
                             </div>
                         </div>
-                        <div className="flex gap-2">
-                            <button
-                                className="text-red-600 hover:text-red-900 cursor-pointer"
-                                onClick={() => deleteTask(task.id)}>
-                                ❌
-                            </button>
-                        </div>
+                        {!isViewer && (
+                            <div className="flex gap-2">
+                                <button
+                                    className="text-red-600 hover:text-red-900 cursor-pointer"
+                                    onClick={() => deleteTask(task.id)}>
+                                    ❌
+                                </button>
+                            </div>
+                        )}
                     </li>
                 ))}
             </ul>
+            {!isViewer && (
+                <div className="mt-4">
+                    <input
+                        type="text"
+                        placeholder="Name"
+                        value={newTaskTitle}
+                        onChange={(e) => setNewTaskTitle(e.target.value)}
+                        className="border p-2 w-full rounded-md mb-2"
+                    />
+                    <input
+                        type="text"
+                        placeholder="Description"
+                        value={newTaskDescription}
+                        onChange={(e) => setNewTaskDescription(e.target.value)}
+                        className="border p-2 w-full rounded-md mb-2"
+                    />
 
-            <div className="mt-4">
-                <input
-                    type="text"
-                    placeholder="Name"
-                    value={newTaskTitle}
-                    onChange={(e) => setNewTaskTitle(e.target.value)}
-                    className="border p-2 w-full rounded-md mb-2"
+                    <Button onClick={handleAddTask}>Add task</Button>
+                </div>
+            )}
+            {isModalOpen && (
+                <CollaboratorModal
+                    todoListId={id}
+                    onClose={() => setIsModalOpen(false)}
                 />
-                <input
-                    type="text"
-                    placeholder="Description"
-                    value={newTaskDescription}
-                    onChange={(e) => setNewTaskDescription(e.target.value)}
-                    className="border p-2 w-full rounded-md mb-2"
-                />
-
-                <Button onClick={handleAddTask}>Add task</Button>
-            </div>
+            )}
         </div>
     );
 };

@@ -9,6 +9,6 @@ const router = Router();
 router.use('/auth', authRouter);
 router.use('/todos', todoRouter);
 router.use('/tasks', taskRouter);
-router.use('/collaborator', collaboratorRouter);
+router.use('/collaborators', collaboratorRouter);
 
 export default router;

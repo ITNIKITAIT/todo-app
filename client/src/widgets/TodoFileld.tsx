@@ -1,5 +1,5 @@
 import TodoCard from '@/components/TodoCard';
-import { useTodos } from '@/hooks/useTodos';
+import { Todo, TodoCollaborator, USER_ROLE, useTodos } from '@/hooks/useTodos';
 import Button from '@/shared/ui/Button';
 import { useState } from 'react';
 
@@ -8,14 +8,15 @@ const TodoField = () => {
 
     const { isLoading, todos, addTodo } = useTodos();
     if (isLoading) return <div>Loading...</div>;
+    const { myTodos, collaboratorTodos } = todos;
 
     return (
         <div className="space-y-6 mt-10">
             <section>
                 <h2 className="text-4xl font-bold mb-3"> My tasks</h2>
-                {todos ? (
+                {myTodos ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {todos.map((todo) => (
+                        {myTodos.map((todo: Todo) => (
                             <TodoCard key={todo.id} {...todo} />
                         ))}
                     </div>
@@ -41,17 +42,19 @@ const TodoField = () => {
 
             <section>
                 <h2 className="text-4xl font-bold mb-3">Other tasks</h2>
-                {/* {todos ? (
+                {collaboratorTodos ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {todos.map((todo) => (
-                            <TodoCard key={todo.id} {...todo} />
+                        {collaboratorTodos.map((todo: TodoCollaborator) => (
+                            <TodoCard
+                                role={todo.collaborators[0].role as USER_ROLE}
+                                key={todo.id}
+                                {...todo}
+                            />
                         ))}
                     </div>
                 ) : (
-                    <p className="text-gray-500">
-                        You don't have tasks
-                    </p>
-                )} */}
+                    <p className="text-gray-500">You don't have tasks</p>
+                )}
             </section>
         </div>
     );

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../prisma';
+import { UserRole } from '@prisma/client';
 
 class TaskController {
     async create(req: Request, res: Response): Promise<any> {
@@ -9,8 +10,24 @@ class TaskController {
 
             const list = await prisma.todoList.findUnique({
                 where: { id: listId },
+                include: {
+                    collaborators: {
+                        where: { userId },
+                        select: { role: true },
+                    },
+                },
             });
-            if (!list || list.ownerId !== userId) {
+
+            if (!list) {
+                return res.status(404).json({ message: 'List not found' });
+            }
+
+            const isOwner = list.ownerId === userId;
+            const isAdmin = list.collaborators.some(
+                (collab) => collab.role === UserRole.ADMIN
+            );
+
+            if (!isOwner && !isAdmin) {
                 return res.status(403).json({ message: 'Access denied' });
             }
 
@@ -20,6 +37,7 @@ class TaskController {
 
             res.json(task);
         } catch (error) {
+            console.error(error);
             res.status(500).json({ message: 'Something went wrong' });
         }
     }
@@ -90,9 +108,15 @@ class TaskController {
 
             const list = await prisma.todoList.findUnique({
                 where: { id: task.listId },
+                include: {
+                    collaborators: {
+                        where: { userId },
+                        select: { role: true },
+                    },
+                },
             });
-            if (!list || list.ownerId !== userId) {
-                return res.status(403).json({ message: 'Access denied' });
+            if (!list) {
+                return res.status(404).json({ message: 'List not found' });
             }
 
             const updatedTask = await prisma.task.update({
@@ -112,19 +136,37 @@ class TaskController {
             const userId = req.body.user?.id;
 
             const task = await prisma.task.findUnique({ where: { id } });
-            if (!task)
+            if (!task) {
                 return res.status(404).json({ message: 'Task not found' });
+            }
 
             const list = await prisma.todoList.findUnique({
                 where: { id: task.listId },
+                include: {
+                    collaborators: {
+                        where: { userId },
+                        select: { role: true },
+                    },
+                },
             });
-            if (!list || list.ownerId !== userId) {
+
+            if (!list) {
+                return res.status(404).json({ message: 'List not found' });
+            }
+
+            const isOwner = list.ownerId === userId;
+            const isAdmin = list.collaborators.some(
+                (collab) => collab.role === UserRole.ADMIN
+            );
+
+            if (!isOwner && !isAdmin) {
                 return res.status(403).json({ message: 'Access denied' });
             }
 
             await prisma.task.delete({ where: { id } });
             res.json({ message: 'Task deleted' });
         } catch (error) {
+            console.error(error);
             res.status(500).json({ message: 'Something went wrong' });
         }
     }
