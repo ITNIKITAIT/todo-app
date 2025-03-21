@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { RegisterFormData, registerSchema } from '../../schemas';
 import { api } from '../../api';
 import Button from '@/shared/ui/Button';
+import { handleError } from '@/utils/handleError';
 
 export default function RegisterPage() {
     const {
@@ -28,7 +29,7 @@ export default function RegisterPage() {
             queryClient.invalidateQueries({ queryKey: ['authUser'] });
         },
         onError: (error) => {
-            console.error('Sign up error', error);
+            handleError(error);
         },
     });
 

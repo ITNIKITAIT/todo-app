@@ -1,3 +1,4 @@
+import { USER_ROLE } from '@/hooks/useTodos';
 import { z } from 'zod';
 
 export const registerSchema = z
@@ -17,5 +18,11 @@ export const loginSchema = z.object({
     password: z.string(),
 });
 
+export const collaboratorSchema = z.object({
+    email: z.string().email('Incorrect email'),
+    role: z.enum([USER_ROLE.ADMIN, USER_ROLE.VIEWER]),
+});
+
+export type CollaboratorFormValues = z.infer<typeof collaboratorSchema>;
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;

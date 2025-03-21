@@ -6,9 +6,6 @@ class TodoListController {
         try {
             const { name } = req.body;
             const userId = req.body.user?.id;
-            if (!userId) {
-                return res.status(401).json({ message: 'Unauthorized' });
-            }
 
             const todoList = await prisma.todoList.create({
                 data: { name, ownerId: userId },
@@ -23,10 +20,6 @@ class TodoListController {
     async getAll(req: Request, res: Response): Promise<any> {
         try {
             const userId = req.body.user?.id;
-
-            if (!userId) {
-                return res.status(401).json({ message: 'Unauthorized' });
-            }
 
             const myTodos = await prisma.todoList.findMany({
                 where: { ownerId: userId },
@@ -100,6 +93,7 @@ class TodoListController {
 
             await prisma.$transaction([
                 prisma.task.deleteMany({ where: { listId: id } }),
+                prisma.collaborator.deleteMany({ where: { listId: id } }),
                 prisma.todoList.delete({ where: { id } }),
             ]);
 

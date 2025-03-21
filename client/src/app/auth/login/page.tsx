@@ -5,8 +5,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { LoginFormData, loginSchema } from '../../schemas';
 import { api } from '../../api';
 import { useRouter } from 'next/navigation';
-import toast from 'react-hot-toast';
 import Button from '@/shared/ui/Button';
+import { handleError } from '@/utils/handleError';
 
 export default function LoginForm() {
     const {
@@ -29,8 +29,7 @@ export default function LoginForm() {
             queryClient.invalidateQueries({ queryKey: ['authUser'] });
         },
         onError: (error) => {
-            toast.error(error.message);
-            console.error('Login error:', error);
+            handleError(error);
         },
     });
 
@@ -71,7 +70,7 @@ export default function LoginForm() {
             <Button>Login</Button>
 
             <p className="text-center mt-4">
-                <span>Don't have an account?</span>
+                <span>Do not have an account?</span>
                 <button
                     onClick={() => router.replace('/auth/register')}
                     type="button"

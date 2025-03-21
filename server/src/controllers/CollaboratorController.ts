@@ -3,7 +3,7 @@ import prisma from '../prisma';
 
 class CollaboratorController {
     async getCollaborators(req: Request, res: Response): Promise<any> {
-        const { listId } = req.params;
+        const listId = req.params.id;
 
         if (!listId) {
             return res.status(400).json({ message: 'Missing listId' });
@@ -17,7 +17,6 @@ class CollaboratorController {
                 },
             },
         });
-
         res.json(collaborators);
     }
     async addCollaborator(req: Request, res: Response): Promise<any> {

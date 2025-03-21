@@ -6,7 +6,6 @@ const router = Router();
 
 router.post('/', authMiddleware, TaskController.create);
 router.get('/:listId', authMiddleware, TaskController.getAll);
-router.put('/:id', authMiddleware, TaskController.update);
 router.patch('/:id/status', authMiddleware, TaskController.updateStatus);
 router.delete('/:id', authMiddleware, TaskController.delete);
 

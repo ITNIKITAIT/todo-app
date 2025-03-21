@@ -1,5 +1,6 @@
 'use client';
 import { api } from '@/app/api';
+import { handleError } from '@/utils/handleError';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const TODO_ROUTE = '/todos';
@@ -29,9 +30,11 @@ export interface TodoCollaborator {
     name: string;
     ownerId: string;
     tasks: Task[];
-    collaborators: {
-        role: USER_ROLE;
-    };
+    collaborators: [
+        {
+            role: USER_ROLE;
+        }
+    ];
 }
 
 interface TodosResponse {
@@ -51,8 +54,69 @@ const fetchTodos = async (): Promise<TodosResponse> => {
         });
         return response.data ?? TodosResponseDeafaultValue;
     } catch (error) {
-        console.error('Error fetching todos:', error);
+        handleError(error);
         return TodosResponseDeafaultValue;
+    }
+};
+
+const addTodo = async (newTodo: Pick<Todo, 'name'>) => {
+    try {
+        const response = await api.post<Task>(TODO_ROUTE, newTodo, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+const deleteTodo = async (id: string) => {
+    try {
+        const response = await api.delete<void>(`${TODO_ROUTE}/${id}`, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+const addTask = async (newTask: Omit<Task, 'id'>) => {
+    try {
+        const response = await api.post<Task>(TASK_ROUTE, newTask, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+const deleteTask = async (taskId: string) => {
+    try {
+        await api.delete(`${TASK_ROUTE}/${taskId}`, {
+            withCredentials: true,
+        });
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+const updateTask = async ({
+    taskId,
+    status,
+}: {
+    taskId: string;
+    status: boolean;
+}) => {
+    try {
+        await api.patch(
+            `${TASK_ROUTE}/${taskId}/status`,
+            { status },
+            { withCredentials: true }
+        );
+    } catch (error) {
+        handleError(error);
     }
 };
 
@@ -69,66 +133,35 @@ export const useTodos = () => {
     });
 
     const addTodoMutation = useMutation({
-        mutationFn: async (newTodo: Pick<Todo, 'name'>) => {
-            const response = await api.post<Task>(TODO_ROUTE, newTodo, {
-                withCredentials: true,
-            });
-            return response.data;
-        },
+        mutationFn: addTodo,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['todos'] });
         },
     });
 
     const deleteTodoMutation = useMutation({
-        mutationFn: async (id: string) => {
-            const response = await api.delete<void>(`${TODO_ROUTE}/${id}`, {
-                withCredentials: true,
-            });
-            return response.data;
-        },
+        mutationFn: deleteTodo,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['todos'] });
         },
     });
 
     const addTaskMutation = useMutation({
-        mutationFn: async (newTask: Omit<Task, 'id'>) => {
-            const response = await api.post<Task>(TASK_ROUTE, newTask, {
-                withCredentials: true,
-            });
-            return response.data;
-        },
+        mutationFn: addTask,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['todos'] });
         },
     });
 
     const deleteTaskMutation = useMutation({
-        mutationFn: async (taskId: string) => {
-            await api.delete(`${TASK_ROUTE}/${taskId}`, {
-                withCredentials: true,
-            });
-        },
+        mutationFn: deleteTask,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['todos'] });
         },
     });
 
     const updateTaskStatusMutation = useMutation({
-        mutationFn: async ({
-            taskId,
-            status,
-        }: {
-            taskId: string;
-            status: boolean;
-        }) => {
-            await api.patch(
-                `${TASK_ROUTE}/${taskId}/status`,
-                { status },
-                { withCredentials: true }
-            );
-        },
+        mutationFn: updateTask,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['todos'] });
         },

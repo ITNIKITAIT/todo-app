@@ -1,11 +1,12 @@
 import { api } from '@/app/api';
 import { useAuth } from '@/hooks/useAuth';
 import Container from '@/shared/ui/Container';
+import { cn } from '@/utils/cn';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 
 const Navbar = () => {
-    const { user } = useAuth();
+    const { isLoading, user } = useAuth();
 
     const queryClient = useQueryClient();
 
@@ -28,7 +29,10 @@ const Navbar = () => {
                     ) : (
                         <Link
                             href="auth/login"
-                            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md transition cursor-pointer">
+                            className={cn(
+                                'bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md transition cursor-pointer',
+                                isLoading && 'pointer-events-none opacity-45'
+                            )}>
                             Login
                         </Link>
                     )}

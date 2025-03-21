@@ -30,7 +30,7 @@ class UserController {
                 secure: false,
                 sameSite: 'strict',
             });
-            res.status(201).json({ message: 'User was created', user });
+            res.status(201).json({ message: 'User was created' });
         } catch (error) {
             res.status(500).json({ message: 'Server error', error });
         }
@@ -64,7 +64,7 @@ class UserController {
                 secure: false,
                 sameSite: 'strict',
             });
-            res.json({ user });
+            res.status(201).json({ message: 'User was authorized' });
         } catch (error) {
             res.status(500).json({ message: 'Server error', error });
         }

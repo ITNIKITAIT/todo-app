@@ -67,34 +67,6 @@ class TaskController {
         }
     }
 
-    async update(req: Request, res: Response): Promise<any> {
-        try {
-            const { id } = req.params;
-            const { title, description, status, user } = req.body;
-            const userId = user?.id;
-
-            const task = await prisma.task.findUnique({ where: { id } });
-            if (!task)
-                return res.status(404).json({ message: 'Task not found' });
-
-            const list = await prisma.todoList.findUnique({
-                where: { id: task.listId },
-            });
-            if (!list || list.ownerId !== userId) {
-                return res.status(403).json({ message: 'Access denied' });
-            }
-
-            const updatedTask = await prisma.task.update({
-                where: { id },
-                data: { title, description, status },
-            });
-
-            res.json(updatedTask);
-        } catch (error) {
-            res.status(500).json({ message: 'Something went wrong' });
-        }
-    }
-
     async updateStatus(req: Request, res: Response): Promise<any> {
         try {
             const { id } = req.params;
